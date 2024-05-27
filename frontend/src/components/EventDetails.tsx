@@ -53,7 +53,6 @@ import {
   useCustomQueryClient,
 } from "@/config/queryClient.ts";
 import { useDialog } from "@/context/DialogProvider.tsx";
-import { ErrorObject } from "@hookform/resolvers/io-ts/src/types.js";
 import { stringAvatar } from "@/lib/utils.ts";
 import toast from "react-hot-toast";
 import { z } from "zod";
