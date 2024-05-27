@@ -26,32 +26,32 @@ app.use(express.json());
 
 
 //SERVERLESS
-// routes(app);
+routes(app);
 
-// const initializeApp = async () => {
-//   try {
-//     await connectDB();
-//   } catch (error) {
-//     console.log(error);
-//     process.exit(1);
-//   }
-// };
+const initializeApp = async () => {
+  try {
+    await connectDB();
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
 
-// initializeApp();
+initializeApp();
 
-// export default app;
+export default app;
 //SERVERLESS
 
 
 //SERVER
-app.listen(process.env.PORT, async () => {
-  try {
-    await connectDB();
-    routes(app);
-    console.log(`Server Running on ${process.env.PORT}`);
-  } catch (error) {
-    console.log(error);
-  }
-});
+// app.listen(process.env.PORT, async () => {
+//   try {
+//     await connectDB();
+//     routes(app);
+//     console.log(`Server Running on ${process.env.PORT}`);
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 //SERVER
 
