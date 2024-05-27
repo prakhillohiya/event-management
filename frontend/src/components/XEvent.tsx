@@ -64,7 +64,8 @@ const XEvent: React.FC<{
           display: "flex",
           alignItems: "center",
           textAlign: "center",
-          margin: "5rem",
+          flexDirection: { xs: 'column', sm: 'row' },
+          margin:{xs: "1rem", sm: '2rem',md:"5rem"}
         }}
       >
         {events.map((x, i) => {

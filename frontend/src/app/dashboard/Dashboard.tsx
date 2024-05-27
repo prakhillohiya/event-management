@@ -151,6 +151,7 @@ const Dashboard = () => {
           marginRight: "auto",
           fontSize: "1rem",
           fontWeight: "bold",
+          minWidth: "150px",
         }}
       />
       <div>
@@ -160,7 +161,8 @@ const Dashboard = () => {
           parentMenuItemClick={parentMenuItemClick}
         />
       </div>
-      <div className="mt-auto ml-auto p-4">
+      <div className="mt-auto ml-auto">
+        <div className="m-4">
         <Tooltip title="Create New Event" arrow onClick={handlePlusClick}>
           <Fab color="primary" aria-label="create-cv">
             <Icon
@@ -170,6 +172,7 @@ const Dashboard = () => {
             />
           </Fab>
         </Tooltip>
+        </div>
       </div>
     </Box>
   );

@@ -23,6 +23,7 @@ import {
   ThemeProvider,
   Typography,
   styled,
+  useTheme,
 } from "@mui/material";
 import React, { ChangeEvent, Fragment, useEffect, useState } from "react";
 import Grid from "@mui/material/Unstable_Grid2/Grid2";
@@ -113,7 +114,7 @@ export interface IAttachment extends AttachmentType {}
 // }
 
 const ZEvent = z.object({
-  _id: z.string(),
+  _id: z.string().optional(),
   name: z.string().min(1, { message: "Required" }),
   description: z.string().optional(),
   date: z.string().refine((value) => dayjs(value).isValid(), {
@@ -128,11 +129,11 @@ const ZEvent = z.object({
   }),
   location: z.string().min(1, { message: "Required" }),
   meetingRoom: z.string().optional(),
-  currentGuest: ZEmail,
+  currentGuest: z.string().optional(),
   attachment: z.array(ZAttachment),
   notification: z.enum(["email", "slack"]),
   reminder: z.string().min(1, { message: "Required" }),
-  guest: z.array(z.string()),
+  guest: z.array(z.string()).optional(),
 });
 
 type EventType = z.infer<typeof ZEvent>;
@@ -239,7 +240,14 @@ const EventDetails: React.FC<{
     reset,
     getFieldState,
     setError,
-    formState: { isDirty, isSubmitSuccessful, isSubmitting, isSubmitted },
+    clearErrors,
+    formState: {
+      isDirty,
+      isSubmitSuccessful,
+      isSubmitting,
+      isSubmitted,
+      isValid,
+    },
   } = useForm<IEvent>({
     defaultValues: {
       name: "",
@@ -269,8 +277,10 @@ const EventDetails: React.FC<{
   }, [queryData]);
 
   // useEffect(() => {
-  //   if (isSubmitting && !guests.length) {
-  //     setError("currentGuest", { message: "Minimum One Guest Required" });
+  //   console.log(isValid)
+  //   if (isSubmitting && guests.length) {
+  //     console.log("Submitted")
+  //     clearErrors("guest");
   //   }
   // }, [isSubmitting]);
 
@@ -326,13 +336,13 @@ const EventDetails: React.FC<{
   };
 
   const handleAddGuestClick = () => {
-    if (ZEmail.safeParse(watch("currentGuest")).success) {
-      const currentGuests = watch("currentGuest");
-      setGuests((prev) => [...prev, currentGuests]);
+    const currentGuest = watch("currentGuest");
+    if (currentGuest && ZEmail.safeParse(currentGuest).success) {
+      setGuests((prev) => [...prev, currentGuest]);
 
       setValue("currentGuest", "");
     } else {
-      setError("currentGuest", { message: "Invalid Email" });
+      toast.error("Invalid Email");
     }
   };
 
@@ -382,12 +392,12 @@ const EventDetails: React.FC<{
 
   const handleSuccessfulSubmit = async (submittedData: IEvent) => {
     const { currentGuest, _id, ...formData } = submittedData;
-    console.log(formData);
 
     mutate({ ...formData, guest: guests, attachment: files });
   };
 
   const handleInvalidFormSubmit = (error: FieldErrors<IEvent>) => {
+    console.log(error);
     toast.error("Invalid Details. Please check all the details");
   };
 
@@ -447,7 +457,11 @@ const EventDetails: React.FC<{
   };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box
+      sx={{
+        flexGrow: 1,
+      }}
+    >
       <Grid container spacing={2} margin={0}>
         <form
           onSubmit={handleSubmit(
@@ -484,7 +498,7 @@ const EventDetails: React.FC<{
                     // helperText={getFieldState("name").error?.message}
                     onBlur={onBlur}
                     value={value || ""}
-                    id="outlined-name-input"
+                    id="event-name"
                     type="text"
                     // inputProps={{ 'aria-label': 'search google maps' }}
                   />
@@ -546,7 +560,7 @@ const EventDetails: React.FC<{
                         error={!!getFieldState("description").error?.message}
                         onBlur={onBlur}
                         value={value || ""}
-                        id="outlined-name-input"
+                        id="event-description"
                         type="text"
                         // inputProps={{ 'aria-label': 'search google maps' }}
                       />
@@ -614,6 +628,7 @@ const EventDetails: React.FC<{
                                 },
                             },
                             placeholder: "Choose event date",
+                            id: "date",
                           },
                         }}
                       />
@@ -663,6 +678,7 @@ const EventDetails: React.FC<{
                                 },
                             },
                             placeholder: "Choose event time",
+                            id: "time",
                           },
                         }}
                       />
@@ -690,7 +706,7 @@ const EventDetails: React.FC<{
                 }}
                 elevation={0}
               >
-                <Box display="flex" alignItems="center">
+                <Box display="flex" alignItems="center" maxWidth={"100%"}>
                   <Controller
                     control={control}
                     name="duration.hr"
@@ -707,6 +723,7 @@ const EventDetails: React.FC<{
                             min: 0,
                             "aria-label": "hours",
                           }}
+                          id="duration-h"
                         />
                         <Typography sx={{ p: "4px 0 5px 0" }}>h</Typography>
                       </>
@@ -730,6 +747,7 @@ const EventDetails: React.FC<{
                             max: 59,
                             "aria-label": "minutes",
                           }}
+                          id="duration-m"
                         />
                         <Typography sx={{ p: "4px 0 5px 0" }}>m</Typography>
                       </>
@@ -806,6 +824,7 @@ const EventDetails: React.FC<{
                             border: "0",
                           },
                         }}
+                        id="location"
                       />
                     )}
                   />
@@ -865,6 +884,7 @@ const EventDetails: React.FC<{
                         onBlur={onBlur}
                         inputRef={ref}
                         error={!!getFieldState(`meetingRoom`).error?.message}
+                        id="meeting-room"
                         input={
                           <OutlinedInput
                             sx={{
@@ -942,17 +962,18 @@ const EventDetails: React.FC<{
                     placeholder={"contact@example.com"}
                     inputRef={ref}
                     onChange={onChange}
-                    error={!!getFieldState("currentGuest").error?.message}
+                    // error={!!getFieldState("currentGuest").error?.message}
                     onBlur={onBlur}
                     value={value || ""}
-                    id="outlined-name-input"
+                    id="current-guest"
                     type="text"
+
                     // inputProps={{ 'aria-label': 'search google maps' }}
                   />
                 )}
               />
 
-              {watch("currentGuest") && !!watch("currentGuest").length && (
+              {watch("currentGuest") && !!watch("currentGuest")?.length && (
                 <Button
                   onClick={handleAddGuestClick}
                   size="small"
@@ -969,13 +990,13 @@ const EventDetails: React.FC<{
                 </Button>
               )}
             </Paper>
-            <FormHelperText
-              error={!!getFieldState("currentGuest").error?.message}
-            >
-              {getFieldState("currentGuest").error?.message}
-            </FormHelperText>
+            {/* <FormHelperText error={isSubmitted && !guests.length}>
+              {isSubmitted && !guests.length && "Required"}
+            </FormHelperText> */}
+            {/* <FormHelperText error={!!getFieldState("guest").error?.message}>
+              {getFieldState("guest").error?.message}
+            </FormHelperText> */}
           </Grid>
-
           <div className="flex gap-2 p-2">
             {guests.map((x, i) => (
               <Fragment key={i}>
@@ -1023,6 +1044,7 @@ const EventDetails: React.FC<{
                   name="notification"
                   render={({ field: { onChange, onBlur, value, ref } }) => (
                     <BottomNavigation
+                      id="notification"
                       showLabels
                       value={value}
                       onChange={(event, newValue) => {
@@ -1037,6 +1059,7 @@ const EventDetails: React.FC<{
                     >
                       <BottomNavigationAction
                         label="Email"
+                        id="email"
                         value={"email"}
                         sx={{
                           "& .MuiBottomNavigationAction-label":
@@ -1055,6 +1078,7 @@ const EventDetails: React.FC<{
                         }}
                       />
                       <BottomNavigationAction
+                        id="slack"
                         label="Slack"
                         value={"slack"}
                         sx={{
@@ -1091,6 +1115,7 @@ const EventDetails: React.FC<{
                     width: "100%",
                     backgroundColor: "#F2F3F4 ",
                     borderRadius: "10px",
+                    flexDirection: { xs: "column", sm: "row" },
                   }}
                   elevation={0}
                 >
@@ -1112,11 +1137,16 @@ const EventDetails: React.FC<{
                           error={!!getFieldState("reminder").error?.message}
                           onBlur={onBlur}
                           value={value || ""}
-                          id="outlined-name-input"
+                          id="reminder"
                           type="number"
                           // inputProps={{ 'aria-label': 'search google maps' }}
                         />
-                        <Typography sx={{ p: "4px 8px 5px 0" }}>
+                        <Typography
+                          sx={{
+                            p: "4px 8px 5px 0",
+                            textAlign: { xs: "center", sm: "center" },
+                          }}
+                        >
                           hour before event
                         </Typography>
                       </>
@@ -1159,6 +1189,7 @@ const EventDetails: React.FC<{
                       Select Files
                       <VisuallyHiddenInput
                         type="file"
+                        id="file"
                         multiple
                         onChange={handleFileChange}
                       />
