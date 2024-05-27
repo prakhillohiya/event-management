@@ -712,7 +712,7 @@ const EventDetails: React.FC<{
                     render={({ field: { onChange, onBlur, value, ref } }) => (
                       <>
                         <InputBase
-                          sx={{ ml: 1, flex: 1, padding: "5px", width: "40px" }}
+                          sx={{ ml: 1, flex: 1, padding: "5px", width: "50px" }}
                           inputRef={ref}
                           placeholder="h"
                           onChange={onChange}
@@ -735,7 +735,7 @@ const EventDetails: React.FC<{
                     render={({ field: { onChange, onBlur, value, ref } }) => (
                       <>
                         <InputBase
-                          sx={{ ml: 1, flex: 1, padding: "5px", width: "40px" }}
+                          sx={{ ml: 1, flex: 1, padding: "5px", width: "50px" }}
                           placeholder="m"
                           inputRef={ref}
                           onChange={onChange}
