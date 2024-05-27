@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const eventController_1 = require("../controller/eventController");
+const validator_1 = require("../middleware/validator");
+const eventSchema_1 = require("../schema/eventSchema");
+const router = (0, express_1.Router)();
+router.post('/create', (0, validator_1.validateSchema)(eventSchema_1.ZEvent), eventController_1.createEvent);
+router.get('/fetchAll', eventController_1.fetchAllEvents);
+router.get('/fetch/:eventId', eventController_1.fetchEventWithId);
+router.post('/update/:eventId', (0, validator_1.validateSchema)(eventSchema_1.ZEvent), eventController_1.updateEventWithId);
+router.delete('/delete/:eventId', eventController_1.deleteEventWithId);
+exports.default = router;
