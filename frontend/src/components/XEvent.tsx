@@ -69,7 +69,7 @@ const XEvent: React.FC<{
         }}
       >
         {events.map((x, i) => {
-          const id = x._id;
+          const id = x._id as string
           return (
             <Fragment key={id}>
               <div className="flex flex-col justify-center p-4 bg-green-200 m-4 rounded-lg">

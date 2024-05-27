@@ -92,7 +92,7 @@ const Dashboard = () => {
     e: React.MouseEvent<HTMLElement>,
     event: IEvent
   ) => {
-    setEventId(event._id);
+    setEventId(event._id!);
     await mutate(event);
     setEvents(queryData?.data.data);
     setIsOpen(false);
